@@ -1,10 +1,10 @@
 import React, { lazy, Suspense, Component } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { ChessProvider } from './context/ChessContext';
+import { SocketProvider } from './context/SocketContext';
 import HomePage from './components/Home/HomePage';
 
-// Lazy-load the game page for faster initial load
-const GameContainer = lazy(() => import('./components/Game/GameContainer'));
+// Lazy-load the play page for faster initial load
+const PlayPage = lazy(() => import('./components/Play/PlayPage'));
 
 class ErrorBoundary extends Component {
     constructor(props) {
@@ -106,9 +106,9 @@ export default function App() {
                         <Route
                             path="/play"
                             element={
-                                <ChessProvider>
-                                    <GameContainer />
-                                </ChessProvider>
+                                <SocketProvider>
+                                    <PlayPage />
+                                </SocketProvider>
                             }
                         />
                     </Routes>

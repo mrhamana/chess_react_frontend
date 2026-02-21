@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { motion } from 'framer-motion';
 import Button from '../UI/Button';
 import useChessGame from '../../hooks/useChessGame';
 import { BOARD_THEMES } from '../../constants/boardConfig';
+import SocketContext from '../../context/SocketContext';
+import { useChess } from '../../context/ChessContext';
 
 const controlsStyle = {
     display: 'flex',
@@ -67,7 +69,17 @@ export default function GameControls() {
         getPGN,
     } = useChessGame();
 
+    const { isMultiplayer } = useChess();
+    const socketCtx = useContext(SocketContext);
+
     const [copied, setCopied] = useState(false);
+
+    const handleResign = () => {
+        if (isMultiplayer && socketCtx?.emitResign) {
+            socketCtx.emitResign();
+        }
+        resign();
+    };
 
     const handleCopyPGN = async () => {
         try {
@@ -91,10 +103,12 @@ export default function GameControls() {
         <div style={controlsStyle}>
             {/* Game actions */}
             <div style={rowStyle}>
-                <Button onClick={newGame} variant="primary" size="sm">
-                    ⟳ New Game
-                </Button>
-                <Button onClick={resign} variant="danger" size="sm" disabled={isGameOver}>
+                {!isMultiplayer && (
+                    <Button onClick={newGame} variant="primary" size="sm">
+                        ⟳ New Game
+                    </Button>
+                )}
+                <Button onClick={handleResign} variant="danger" size="sm" disabled={isGameOver}>
                     ⚐ Resign
                 </Button>
             </div>

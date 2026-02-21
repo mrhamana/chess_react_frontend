@@ -11,9 +11,11 @@ import BoardControls from '../UI/BoardControls';
 import useChessGame from '../../hooks/useChessGame';
 import usePieceMovement from '../../hooks/usePieceMovement';
 import { getGameResultText } from '../../utils/gameHelpers';
+import { useSocket } from '../../context/SocketContext';
+import { useChess } from '../../context/ChessContext';
 import './GameContainer.css';
 
-export default function GameContainer() {
+export default function GameContainer({ multiplayer = false, onPlayAgain, onHome }) {
     const {
         board,
         currentTurn,
@@ -31,6 +33,39 @@ export default function GameContainer() {
 
     const { pendingPromotion, handlePromotion } = usePieceMovement();
     const [showConfetti, setShowConfetti] = useState(false);
+
+    // Multiplayer wiring
+    const socket = multiplayer ? useSocket() : null;
+    const chessCtx = useChess();
+
+    // Configure ChessContext for multiplayer on mount
+    useEffect(() => {
+        if (!multiplayer || !socket?.gameInfo) return;
+        const colorChar = socket.gameInfo.myColor === 'white' ? 'w' : 'b';
+        chessCtx.setMultiplayer(
+            colorChar,
+            socket.gameInfo.opponentName,
+            socket.playerInfo?.displayName,
+        );
+    }, [multiplayer]); // intentionally run once
+
+    // Register socket game-event listeners
+    useEffect(() => {
+        if (!multiplayer || !socket) return;
+        const unsubscribe = socket.registerGameListeners({
+            onGameStarted: () => { /* game already configured above */ },
+            onGameMove: (data) => {
+                chessCtx.applyServerMove(data);
+            },
+            onGameOver: (data) => {
+                chessCtx.setGameOverResult(data);
+            },
+            onOpponentDisconnected: () => {
+                chessCtx.markOpponentDisconnected();
+            },
+        });
+        return unsubscribe;
+    }, [multiplayer]); // intentionally run once
 
     const isFlipped = boardOrientation === 'black';
 
@@ -57,13 +92,27 @@ export default function GameContainer() {
     }, [gameStatus]);
 
     const handleNewGame = useCallback(() => {
+        if (multiplayer && onPlayAgain) {
+            onPlayAgain();
+            return;
+        }
         newGame();
         setShowConfetti(false);
-    }, [newGame]);
+    }, [multiplayer, onPlayAgain, newGame]);
+
+    // Determine player display names
+    const whiteName = multiplayer
+        ? (chessCtx.myColor === 'w' ? chessCtx.myName : chessCtx.opponentName) || 'White'
+        : 'White';
+    const blackName = multiplayer
+        ? (chessCtx.myColor === 'b' ? chessCtx.myName : chessCtx.opponentName) || 'Black'
+        : 'Black';
 
     // Player cards - swap order when board is flipped
     const topColor = isFlipped ? 'w' : 'b';
     const bottomColor = isFlipped ? 'b' : 'w';
+
+    const getName = (color) => (color === 'w' ? whiteName : blackName);
 
     const topCard = (
         <div className={`player-card ${currentTurn === topColor ? 'active' : ''}`}>
@@ -71,7 +120,7 @@ export default function GameContainer() {
                 {topColor === 'w' ? '\u2654' : '\u265A'}
             </div>
             <div className="player-info">
-                <div className="player-name">{topColor === 'w' ? 'White' : 'Black'}</div>
+                <div className="player-name">{getName(topColor)}</div>
                 <CapturedPieces
                     pieces={capturedPieces[topColor]}
                     color={topColor}
@@ -87,7 +136,7 @@ export default function GameContainer() {
                 {bottomColor === 'w' ? '\u2654' : '\u265A'}
             </div>
             <div className="player-info">
-                <div className="player-name">{bottomColor === 'w' ? 'White' : 'Black'}</div>
+                <div className="player-name">{getName(bottomColor)}</div>
                 <CapturedPieces
                     pieces={capturedPieces[bottomColor]}
                     color={bottomColor}
@@ -171,13 +220,24 @@ export default function GameContainer() {
                                         ? '\u00BD Stalemate'
                                         : gameStatus === 'draw'
                                             ? '\u00BD Draw'
-                                            : 'Game Over'}
+                                            : gameStatus === 'resigned'
+                                                ? 'Resigned'
+                                                : 'Game Over'}
                             </h2>
-                            <p>{getGameResultText(gameStatus, currentTurn)}</p>
+                            <p>
+                                {multiplayer && chessCtx.gameOverResult?.message
+                                    ? chessCtx.gameOverResult.message
+                                    : getGameResultText(gameStatus, currentTurn)}
+                            </p>
                             <div className="game-status-actions">
                                 <Button onClick={handleNewGame} variant="primary">
-                                    New Game
+                                    {multiplayer ? 'Play Again' : 'New Game'}
                                 </Button>
+                                {multiplayer && onHome && (
+                                    <Button onClick={onHome} variant="secondary" style={{ marginLeft: '0.5rem' }}>
+                                        Home
+                                    </Button>
+                                )}
                             </div>
                         </motion.div>
                     </motion.div>

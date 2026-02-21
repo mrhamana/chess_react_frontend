@@ -30,6 +30,13 @@ function createInitialState() {
             showLegalMoves: true,
             showEvaluationBar: true,
         },
+        // Multiplayer fields
+        isMultiplayer: false,
+        myColor: null,           // 'w' | 'b' — null for local play
+        opponentName: null,
+        myName: null,
+        gameOverResult: null,    // { result, winner, message }
+        opponentDisconnected: false,
     };
 }
 
@@ -160,6 +167,70 @@ function chessReducer(state, action) {
             };
         }
 
+        // ── Multiplayer actions ──
+
+        case ACTION_TYPES.SET_MULTIPLAYER: {
+            const { myColor, opponentName, myName } = action.payload;
+            return {
+                ...state,
+                isMultiplayer: true,
+                myColor,           // 'w' or 'b'
+                opponentName,
+                myName,
+                boardOrientation: myColor === 'b' ? 'black' : 'white',
+            };
+        }
+
+        case ACTION_TYPES.APPLY_SERVER_MOVE: {
+            // Apply a move confirmed by the server (for both own + opponent moves)
+            const { game, move } = action.payload;
+            const history = game.history({ verbose: true });
+            const historySAN = game.history();
+            const captured = getCapturedPieces(history);
+            const status = getGameStatus(game);
+
+            return {
+                ...state,
+                fen: game.fen(),
+                board: game.board(),
+                currentTurn: game.turn(),
+                moveHistory: history,
+                moveHistorySAN: historySAN,
+                capturedPieces: captured,
+                selectedSquare: null,
+                legalMoves: [],
+                gameStatus: status,
+                lastMove: { from: move.from, to: move.to },
+                pendingPromotion: null,
+            };
+        }
+
+        case ACTION_TYPES.SET_GAME_OVER_RESULT: {
+            const { result, winner, message } = action.payload;
+            // Map server result to our status constants
+            let statusMap = {
+                checkmate: GAME_STATUS.CHECKMATE,
+                stalemate: GAME_STATUS.STALEMATE,
+                draw: GAME_STATUS.DRAW,
+                resignation: GAME_STATUS.RESIGNED,
+                disconnect: GAME_STATUS.RESIGNED,
+            };
+            return {
+                ...state,
+                gameStatus: statusMap[result] || result,
+                gameOverResult: { result, winner, message },
+                selectedSquare: null,
+                legalMoves: [],
+            };
+        }
+
+        case ACTION_TYPES.OPPONENT_DISCONNECTED: {
+            return {
+                ...state,
+                opponentDisconnected: true,
+            };
+        }
+
         default:
             return state;
     }
@@ -256,6 +327,58 @@ export function ChessProvider({ children }) {
         dispatch({ type: ACTION_TYPES.SET_EVALUATION, payload: { evaluation } });
     }, []);
 
+    // ── Multiplayer helpers ──
+
+    /** Configure this context for online play. */
+    const setMultiplayer = useCallback((myColor, opponentName, myName) => {
+        dispatch({
+            type: ACTION_TYPES.SET_MULTIPLAYER,
+            payload: { myColor, opponentName, myName },
+        });
+    }, []);
+
+    /** Apply a server-confirmed move (own or opponent). */
+    const applyServerMove = useCallback((moveData) => {
+        // moveData = { move: { from, to, san, ... }, newFEN }
+        const game = gameRef.current;
+        try {
+            const result = game.move({
+                from: moveData.move.from,
+                to: moveData.move.to,
+                promotion: moveData.move.promotion || undefined,
+            });
+            if (result) {
+                dispatch({
+                    type: ACTION_TYPES.APPLY_SERVER_MOVE,
+                    payload: { game, move: result },
+                });
+            }
+        } catch (e) {
+            // Fallback: load the FEN from the server directly
+            game.load(moveData.newFEN);
+            dispatch({
+                type: ACTION_TYPES.APPLY_SERVER_MOVE,
+                payload: {
+                    game,
+                    move: moveData.move,
+                },
+            });
+        }
+    }, []);
+
+    /** Handle game over from the server. */
+    const setGameOverResult = useCallback((result) => {
+        dispatch({
+            type: ACTION_TYPES.SET_GAME_OVER_RESULT,
+            payload: result,
+        });
+    }, []);
+
+    /** Handle opponent disconnection. */
+    const markOpponentDisconnected = useCallback(() => {
+        dispatch({ type: ACTION_TYPES.OPPONENT_DISCONNECTED });
+    }, []);
+
     const value = {
         ...state,
         selectSquare,
@@ -271,6 +394,11 @@ export function ChessProvider({ children }) {
         getGame,
         flipBoard,
         setEvaluation,
+        // Multiplayer
+        setMultiplayer,
+        applyServerMove,
+        setGameOverResult,
+        markOpponentDisconnected,
     };
 
     return <ChessContext.Provider value={value}>{children}</ChessContext.Provider>;
