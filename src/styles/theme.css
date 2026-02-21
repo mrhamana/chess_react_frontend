@@ -1,0 +1,15 @@
+/* ===== CSS Custom Properties (Theme) ===== */
+:root {
+    --primary: #667eea;
+    --primary-dark: #5568d3;
+    --secondary: #f093fb;
+    --light-square: #f0d9b5;
+    --dark-square: #b58863;
+    --highlight: #ffeb3b;
+    --legal-move: rgba(102, 126, 234, 0.3);
+    --check: #ff5252;
+    --background: #0f0f1a;
+    --surface: #1a1a2e;
+    --text: #ffffff;
+    --text-secondary: #8888aa;
+}

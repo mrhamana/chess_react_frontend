@@ -1,0 +1,37 @@
+.board-wrapper {
+    position: relative;
+    display: inline-block;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow:
+        0 20px 60px rgba(0, 0, 0, 0.4),
+        0 0 0 2px rgba(255, 255, 255, 0.05);
+    touch-action: manipulation;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+.board-grid {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    grid-template-rows: repeat(8, 1fr);
+    width: min(80vw, 560px);
+    height: min(80vw, 560px);
+    touch-action: manipulation;
+}
+
+/* Responsive sizing */
+@media screen and (max-width: 768px) {
+    .board-grid {
+        width: min(94vw, 480px);
+        height: min(94vw, 480px);
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .board-grid {
+        width: 96vw;
+        height: 96vw;
+    }
+}

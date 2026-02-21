@@ -1,0 +1,163 @@
+/* ===== Evaluation Bar ===== */
+
+.eval-bar {
+    position: relative;
+    width: 48px;
+    height: 100%;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #1a1a1a;
+    box-shadow:
+        0 4px 20px rgba(0, 0, 0, 0.4),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    cursor: default;
+    user-select: none;
+}
+
+/* White section (grows from top) */
+.eval-bar-white {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(to bottom, #ffffff, #e4e4e4);
+    z-index: 1;
+    border-radius: 8px 8px 0 0;
+}
+
+/* Black section (fills rest) */
+.eval-bar-black {
+    flex: 1;
+    background: linear-gradient(to bottom, #2c2c2c, #1a1a1a);
+}
+
+/* Center equilibrium line */
+.eval-bar-center-line {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: rgba(255, 255, 255, 0.15);
+    transform: translateY(-1px);
+    z-index: 3;
+    pointer-events: none;
+}
+
+/* Score label */
+.eval-bar-label {
+    position: absolute;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: center;
+    z-index: 4;
+    pointer-events: none;
+}
+
+.eval-label-top {
+    top: 6px;
+}
+
+.eval-label-bottom {
+    bottom: 6px;
+}
+
+.eval-score {
+    display: block;
+    font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+    font-size: 0.85rem;
+    font-weight: 800;
+    color: #fff;
+    background: rgba(0, 0, 0, 0.55);
+    padding: 2px 4px;
+    border-radius: 4px;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.9);
+    white-space: nowrap;
+    letter-spacing: -0.3px;
+    text-align: center;
+}
+
+/* White advantage → dark text at bottom over white bg */
+.eval-label-bottom .eval-score {
+    color: #222;
+    background: rgba(255, 255, 255, 0.65);
+    text-shadow: none;
+}
+
+.eval-score-mate {
+    color: #ff5252 !important;
+    text-shadow: 0 0 8px rgba(255, 82, 82, 0.6) !important;
+}
+
+/* Glow effect for decisive positions */
+.eval-bar-glow {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 60px;
+    z-index: 2;
+    pointer-events: none;
+    border-radius: 8px;
+}
+
+.glow-white {
+    bottom: 0;
+    background: linear-gradient(to top, rgba(255, 255, 255, 0.2), transparent);
+}
+
+.glow-black {
+    top: 0;
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.4), transparent);
+}
+
+/* ===== Mobile ===== */
+@media screen and (max-width: 900px) {
+    .eval-bar {
+        width: 100%;
+        height: 24px;
+        flex-direction: row;
+        border-radius: 6px;
+    }
+
+    .eval-bar-white {
+        top: 0;
+        bottom: 0;
+        right: auto;
+        /* width is animated instead of height on mobile */
+        height: 100% !important;
+        border-radius: 6px 0 0 6px;
+    }
+
+    .eval-bar-center-line {
+        top: 0;
+        bottom: 0;
+        left: 50%;
+        right: auto;
+        width: 2px;
+        height: 100%;
+        transform: translateX(-1px);
+    }
+
+    .eval-bar-label {
+        left: 50%;
+        top: 50%;
+        bottom: auto;
+        transform: translate(-50%, -50%);
+    }
+
+    .eval-label-top,
+    .eval-label-bottom {
+        top: 50%;
+        bottom: auto;
+        transform: translate(-50%, -50%);
+    }
+
+    .eval-label-bottom .eval-score {
+        color: #fff;
+        text-shadow: 0 1px 4px rgba(0, 0, 0, 0.7);
+    }
+}

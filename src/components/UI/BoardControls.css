@@ -1,0 +1,68 @@
+/* ===== Board Controls ===== */
+
+.board-controls {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.board-ctrl-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.4rem 0.7rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    font-family: inherit;
+    color: var(--text-secondary);
+    background: var(--surface);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: color 0.2s, background 0.2s, border-color 0.2s;
+}
+
+.board-ctrl-btn:hover {
+    color: var(--text);
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.12);
+}
+
+.board-ctrl-btn.active {
+    color: var(--primary);
+    border-color: rgba(102, 126, 234, 0.3);
+    background: rgba(102, 126, 234, 0.08);
+}
+
+.board-ctrl-label {
+    font-size: 0.75rem;
+}
+
+/* Flip icon rotation */
+.flip-icon {
+    display: inline-block;
+    font-size: 1.1rem;
+    transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.flip-icon.flipped {
+    transform: rotate(180deg);
+}
+
+.eval-icon {
+    font-size: 0.9rem;
+}
+
+/* Mobile */
+@media screen and (max-width: 480px) {
+    .board-ctrl-label {
+        display: none;
+    }
+
+    .board-ctrl-btn {
+        padding: 0.5rem;
+        min-width: 40px;
+        min-height: 40px;
+        justify-content: center;
+    }
+}

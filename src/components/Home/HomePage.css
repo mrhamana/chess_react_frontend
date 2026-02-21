@@ -1,0 +1,126 @@
+.home-page {
+    min-height: 100vh;
+    background: var(--background);
+    overflow: hidden;
+}
+
+.home-center {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    gap: 1.5rem;
+}
+
+.home-title {
+    font-size: clamp(2rem, 5vw, 3.2rem);
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    background: linear-gradient(135deg, #fff 0%, #667eea 60%, #f093fb 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-align: center;
+}
+
+/* Board wrapper — holds the board + play button */
+.home-board-wrapper {
+    position: relative;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow:
+        0 30px 80px rgba(0, 0, 0, 0.5),
+        0 0 0 1px rgba(255, 255, 255, 0.06);
+}
+
+/* 8x8 decorative board */
+.home-board {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    grid-template-rows: repeat(8, 1fr);
+    width: min(75vw, 480px);
+    height: min(75vw, 480px);
+    user-select: none;
+    pointer-events: none;
+}
+
+.home-square {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.home-square-light {
+    background: #f0d9b5;
+}
+
+.home-square-dark {
+    background: #b58863;
+}
+
+.home-piece {
+    font-size: min(7vw, 3.2rem);
+    line-height: 1;
+    filter: drop-shadow(1px 2px 2px rgba(0, 0, 0, 0.3));
+}
+
+.home-piece-white {
+    color: #fff;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+
+.home-piece-black {
+    color: #222;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+}
+
+/* Play button below the board */
+.home-play-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 1rem 3.5rem;
+    font-size: 1.5rem;
+    font-weight: 800;
+    font-family: inherit;
+    color: #fff;
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    border: none;
+    border-radius: 16px;
+    cursor: pointer;
+    box-shadow:
+        0 8px 30px rgba(102, 126, 234, 0.5),
+        0 0 0 4px rgba(102, 126, 234, 0.15);
+    letter-spacing: 0.5px;
+    transition: box-shadow 0.3s;
+}
+
+.home-play-btn:hover {
+    box-shadow:
+        0 12px 40px rgba(102, 126, 234, 0.65),
+        0 0 0 6px rgba(102, 126, 234, 0.2);
+}
+
+.home-play-icon {
+    font-size: 1.2rem;
+}
+
+/* Responsive */
+@media screen and (max-width: 480px) {
+    .home-board {
+        width: 92vw;
+        height: 92vw;
+    }
+
+    .home-play-btn {
+        padding: 0.8rem 2rem;
+        font-size: 1.25rem;
+        border-radius: 12px;
+    }
+
+    .home-piece {
+        font-size: 9vw;
+    }
+}

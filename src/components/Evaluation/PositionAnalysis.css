@@ -1,0 +1,181 @@
+/* ===== Position Analysis Panel ===== */
+
+.position-analysis-wrapper {
+    position: relative;
+}
+
+.position-analysis-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border: none;
+    border-radius: 10px;
+    background: var(--surface);
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background 0.2s, transform 0.2s;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+.position-analysis-toggle:hover {
+    background: rgba(255, 255, 255, 0.08);
+    transform: scale(1.08);
+}
+
+.analysis-icon {
+    font-size: 1.1rem;
+}
+
+/* Panel */
+.position-analysis-panel {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    margin-top: 8px;
+    width: 260px;
+    background: var(--surface);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 14px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+    padding: 1rem;
+    z-index: 50;
+    max-height: 440px;
+    overflow-y: auto;
+}
+
+/* Scrollbar */
+.position-analysis-panel::-webkit-scrollbar {
+    width: 4px;
+}
+
+.position-analysis-panel::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.position-analysis-panel::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.12);
+    border-radius: 4px;
+}
+
+/* Header */
+.pa-header {
+    display: flex;
+    align-items: baseline;
+    gap: 0.6rem;
+    margin-bottom: 0.8rem;
+    padding-bottom: 0.6rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.pa-score {
+    font-family: 'JetBrains Mono', 'Fira Code', monospace;
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: var(--text);
+}
+
+.pa-assessment {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+
+/* Sections */
+.pa-section {
+    margin-bottom: 0.75rem;
+}
+
+.pa-section-title {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--text-secondary);
+    margin-bottom: 0.4rem;
+}
+
+/* Material */
+.pa-material-row {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-bottom: 0.2rem;
+}
+
+.pa-side-label {
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--text-secondary);
+    width: 16px;
+}
+
+.pa-pieces {
+    display: flex;
+    gap: 0.3rem;
+    flex-wrap: wrap;
+}
+
+.pa-piece-count {
+    font-size: 0.85rem;
+    color: var(--text);
+}
+
+/* Breakdown */
+.pa-breakdown {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+
+.pa-bd-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.15rem 0;
+}
+
+.pa-bd-label {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+
+.pa-bd-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+/* Insights */
+.pa-insights {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.pa-insights li {
+    font-size: 0.75rem;
+    color: var(--text);
+    padding: 0.2rem 0;
+    padding-left: 0.8rem;
+    position: relative;
+}
+
+.pa-insights li::before {
+    content: '•';
+    position: absolute;
+    left: 0;
+    color: var(--primary);
+}
+
+/* Mobile */
+@media screen and (max-width: 900px) {
+    .position-analysis-panel {
+        right: auto;
+        left: 0;
+        width: 240px;
+    }
+}
