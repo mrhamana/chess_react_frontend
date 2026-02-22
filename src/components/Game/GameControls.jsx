@@ -1,5 +1,5 @@
 import React, { useState, useContext } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import Button from '../UI/Button';
 import useChessGame from '../../hooks/useChessGame';
 import { BOARD_THEMES } from '../../constants/boardConfig';
@@ -19,6 +19,57 @@ const rowStyle = {
     display: 'flex',
     gap: '0.5rem',
     flexWrap: 'wrap',
+};
+
+const resignBtnStyle = {
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: '0.5rem',
+    width: '100%',
+    padding: '0.65rem 1.2rem',
+    fontSize: '0.9rem',
+    fontWeight: 700,
+    fontFamily: 'inherit',
+    color: '#fff',
+    background: 'linear-gradient(135deg, #ff5252, #d32f2f)',
+    border: 'none',
+    borderRadius: '12px',
+    cursor: 'pointer',
+    boxShadow: '0 4px 18px rgba(255, 82, 82, 0.35)',
+    letterSpacing: '0.02em',
+    transition: 'all 0.2s',
+};
+
+const resignBtnDisabled = {
+    ...resignBtnStyle,
+    opacity: 0.35,
+    cursor: 'not-allowed',
+    pointerEvents: 'none',
+    boxShadow: 'none',
+};
+
+/* Confirm overlay styles */
+const confirmOverlay = {
+    position: 'fixed',
+    inset: 0,
+    background: 'rgba(0,0,0,0.6)',
+    backdropFilter: 'blur(6px)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 200,
+};
+
+const confirmCard = {
+    background: 'var(--surface, #16213e)',
+    borderRadius: '18px',
+    padding: '2rem 2.5rem',
+    textAlign: 'center',
+    boxShadow: '0 16px 50px rgba(0,0,0,0.5)',
+    border: '1px solid rgba(255,255,255,0.08)',
+    maxWidth: '360px',
+    width: '90vw',
 };
 
 const sectionHeader = {
@@ -73,12 +124,22 @@ export default function GameControls() {
     const socketCtx = useContext(SocketContext);
 
     const [copied, setCopied] = useState(false);
+    const [showResignConfirm, setShowResignConfirm] = useState(false);
 
-    const handleResign = () => {
+    const handleResignClick = () => {
+        setShowResignConfirm(true);
+    };
+
+    const confirmResign = () => {
+        setShowResignConfirm(false);
         if (isMultiplayer && socketCtx?.emitResign) {
             socketCtx.emitResign();
         }
         resign();
+    };
+
+    const cancelResign = () => {
+        setShowResignConfirm(false);
     };
 
     const handleCopyPGN = async () => {
@@ -108,10 +169,56 @@ export default function GameControls() {
                         ⟳ New Game
                     </Button>
                 )}
-                <Button onClick={handleResign} variant="danger" size="sm" disabled={isGameOver}>
-                    ⚐ Resign
-                </Button>
             </div>
+
+            {/* Resign button — prominent standalone */}
+            <motion.button
+                style={isGameOver ? resignBtnDisabled : resignBtnStyle}
+                onClick={handleResignClick}
+                disabled={isGameOver}
+                whileHover={!isGameOver ? { scale: 1.03, boxShadow: '0 6px 24px rgba(255, 82, 82, 0.5)' } : {}}
+                whileTap={!isGameOver ? { scale: 0.96 } : {}}
+            >
+                <span style={{ fontSize: '1.1rem' }}>⚑</span> Resign
+            </motion.button>
+
+            {/* Resign confirmation modal */}
+            <AnimatePresence>
+                {showResignConfirm && (
+                    <motion.div
+                        style={confirmOverlay}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        onClick={(e) => e.target === e.currentTarget && cancelResign()}
+                    >
+                        <motion.div
+                            style={confirmCard}
+                            initial={{ scale: 0.85, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.85, opacity: 0 }}
+                            transition={{ type: 'spring', stiffness: 350, damping: 25 }}
+                        >
+                            <div style={{ fontSize: '2.5rem', marginBottom: '0.6rem' }}>⚑</div>
+                            <h3 style={{ color: 'var(--text, #e0e0e0)', fontSize: '1.25rem', marginBottom: '0.4rem' }}>
+                                Resign this game?
+                            </h3>
+                            <p style={{ color: '#8892b0', fontSize: '0.9rem', marginBottom: '1.5rem' }}>
+                                This will count as a loss. Are you sure?
+                            </p>
+                            <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center' }}>
+                                <Button onClick={cancelResign} variant="secondary" size="md">
+                                    Cancel
+                                </Button>
+                                <Button onClick={confirmResign} variant="danger" size="md"
+                                    style={{ background: 'linear-gradient(135deg, #ff5252, #d32f2f)', color: '#fff', border: 'none', boxShadow: '0 4px 15px rgba(255,82,82,0.35)' }}>
+                                    Yes, Resign
+                                </Button>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
 
             {/* Copy PGN */}
             <div style={rowStyle}>

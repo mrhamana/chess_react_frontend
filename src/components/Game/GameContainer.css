@@ -50,7 +50,7 @@
     flex-direction: column;
     gap: 1rem;
     width: 320px;
-    max-height: min(80vw, 560px);
+    max-height: min(85vw, 640px);
 }
 
 /* === Player cards === */
